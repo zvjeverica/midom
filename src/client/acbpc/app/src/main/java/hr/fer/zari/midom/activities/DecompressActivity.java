@@ -47,7 +47,7 @@ public class DecompressActivity extends ActionBarActivity {
         for (int i = 0; i < files.length; i++)
         {
             result.add(files[i]);
-            //Log.d("Files", "FileName:" + files[i].getName());
+            //s
         }
         return result;
     }

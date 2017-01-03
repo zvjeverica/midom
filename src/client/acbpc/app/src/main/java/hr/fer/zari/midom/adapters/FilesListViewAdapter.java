@@ -66,7 +66,8 @@ public class FilesListViewAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 Toast.makeText(context, "You clicked : "+ files.get(position).getName(), Toast.LENGTH_SHORT).show();
-                //DialogDecompressImage dialogDecompressImage = new DialogDecompressImage(context, files.get(position));
+                DialogDecompressImage dialogDecompressImage = new DialogDecompressImage(context, files.get(position));
+
             }
         });
         return v;
