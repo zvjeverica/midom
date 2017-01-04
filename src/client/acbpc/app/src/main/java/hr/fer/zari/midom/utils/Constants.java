@@ -6,8 +6,8 @@ public class Constants {
 
     public static final String PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static final String FOLDER = "/midom";
-    public static final String LINK = "http://midom.rasip.fer.hr:8080";   // link for download
-    //public static final String LINK = "http://161.53.67.87:9000/";
+    //public static final String LINK = "http://midom.rasip.fer.hr:8080";   // link for download
+    public static final String LINK = "http://161.53.67.87:9000";
     public static final String TEMP = "/temp-download";
 
     public static final String ZIP_DOWNLOAD_LOCATION = Constants.PATH + Constants.FOLDER +  TEMP;
