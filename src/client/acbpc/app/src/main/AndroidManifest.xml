@@ -110,6 +110,9 @@
         <activity
             android:name=".activities.DecompressActivity"
             android:label="@string/title_activity_decompress" />
+        <activity
+            android:name=".activities.SetDownloadType"
+            android:label="@string/title_activity_set_download_type"></activity>
     </application>
 
 </manifest>

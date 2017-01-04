@@ -177,6 +177,11 @@ public class MainActivity extends ActionBarActivity implements MainFragment.OnFr
             Intent intent = new Intent(this, DecompressActivity.class);
             startActivity(intent);
             return true;
+        } else if(id == R.id.action_set_download_type) {
+            Log.v(TAG, "Open set download type");
+            Intent intent = new Intent(this, SetDownloadType.class);
+            startActivity(intent);
+            return true;
         } else if(id == R.id.action_sign_out) {
             MidomApplication midomApplication = (MidomApplication) getApplication();
             midomApplication.getCookieManager().getCookieStore().removeAll();

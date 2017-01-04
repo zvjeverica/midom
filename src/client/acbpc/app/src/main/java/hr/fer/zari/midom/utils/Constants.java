@@ -17,6 +17,7 @@ public class Constants {
     public static final String AUDIO_NAME = PATH + FOLDER + TEMP + "/audio.3gp";
 
     public static final String GET_UNCOMP_STUDY = LINK + "/ms/getStudyArchiveUncompressed/";
+    public static final String GET_COMP_STUDY = LINK + "/ms/getStudyArchiveCompressed/";
 
     public static final String TEST_FOLDER= "/MidomData";
 

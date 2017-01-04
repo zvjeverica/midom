@@ -70,7 +70,7 @@ public class StudyFragment extends Fragment implements AsyncDownloadStudy.unzipC
         consultationRequestID = args.getInt(MainActivity.EXTRA_CR_ID);
         int studyID = args.getInt(MainActivity.EXTRA_STUDY_ID);
         try {
-            AsyncDownloadStudy asyncDownloadStudy = new AsyncDownloadStudy(getActivity(), studyID);
+            AsyncDownloadStudy asyncDownloadStudy = new AsyncDownloadStudy(getActivity(), studyID, Constants.GET_UNCOMP_STUDY);
             asyncDownloadStudy.execute();
             asyncDownloadStudy.setListener(this);
         } catch (MalformedURLException e) {

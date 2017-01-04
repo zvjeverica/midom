@@ -45,9 +45,10 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
 
 //    private DialogDownloading dialogDownloading;
 
-    public AsyncDownloadStudy(Activity activity, int ID) throws MalformedURLException {
+    public AsyncDownloadStudy(Activity activity, int ID, String downloadType) throws MalformedURLException {
         this.activity = activity;
-        this.url = new URL(Constants.GET_UNCOMP_STUDY + ID);
+        //this.url = new URL(Constants.GET_UNCOMP_STUDY + ID);
+        this.url = new URL(downloadType + ID);
         this.ID = ID;
     }
 
