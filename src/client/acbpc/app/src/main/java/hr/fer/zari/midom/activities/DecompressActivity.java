@@ -16,6 +16,8 @@ import java.util.List;
 import hr.fer.zari.midom.R;
 import hr.fer.zari.midom.adapters.FilesListViewAdapter;
 
+import static hr.fer.zari.midom.utils.Constants.TEST_FOLDER;
+
 public class DecompressActivity extends ActionBarActivity {
 
     private ListView listView;
@@ -36,7 +38,7 @@ public class DecompressActivity extends ActionBarActivity {
     private List<File> getFiles(){
         List<File> result = new ArrayList<>();
 
-        String path = Environment.getExternalStorageDirectory().toString()+"/MidomData";
+        String path = Environment.getExternalStorageDirectory().toString()+TEST_FOLDER;
         //Log.d("Files", "Path: " + path);
         File directory = new File(path);
         if (! directory.exists()){
@@ -47,7 +49,7 @@ public class DecompressActivity extends ActionBarActivity {
         for (int i = 0; i < files.length; i++)
         {
             result.add(files[i]);
-            //s
+            //Log.d("Files", "FileName:" + files[i].getName());
         }
         return result;
     }

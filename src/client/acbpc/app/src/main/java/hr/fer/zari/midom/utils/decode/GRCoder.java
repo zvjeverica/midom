@@ -8,7 +8,7 @@
 //
 //Usage: "Usage: Coder  e|d FILENAME"
 //////////////////////////////////////////////////////
-package hr.fer.zari.midom.utils;
+package hr.fer.zari.midom.utils.decode;
 import android.annotation.SuppressLint;
 
 import java.io.File;

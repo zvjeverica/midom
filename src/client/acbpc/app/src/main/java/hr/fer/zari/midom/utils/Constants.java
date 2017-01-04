@@ -18,6 +18,8 @@ public class Constants {
 
     public static final String GET_UNCOMP_STUDY = LINK + "/ms/getStudyArchiveUncompressed/";
 
+    public static final String TEST_FOLDER= "/MidomData";
+
 
     public static final int NUM_OF_COLUMNS_GRID = 3;
     // Gridview image padding

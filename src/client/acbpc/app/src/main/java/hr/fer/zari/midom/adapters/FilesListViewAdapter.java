@@ -1,7 +1,11 @@
 package hr.fer.zari.midom.adapters;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Environment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +18,14 @@ import java.util.List;
 
 import hr.fer.zari.midom.R;
 import hr.fer.zari.midom.dialogs.DialogDecompressImage;
+import hr.fer.zari.midom.picture.ImageBitmap;
+import hr.fer.zari.midom.utils.ImageException;
+import hr.fer.zari.midom.utils.decode.CBPredictor;
+import hr.fer.zari.midom.utils.decode.GRCoder;
+import hr.fer.zari.midom.utils.decode.PGMImage;
+import hr.fer.zari.midom.utils.decode.Predictor;
+
+import static hr.fer.zari.midom.utils.Constants.TEST_FOLDER;
 
 /**
  * Created by Ana on 2.1.2017..
@@ -51,6 +63,7 @@ public class FilesListViewAdapter extends BaseAdapter {
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         View v;
+
         final int position = i;
         TextView textView;
         if(view==null){
