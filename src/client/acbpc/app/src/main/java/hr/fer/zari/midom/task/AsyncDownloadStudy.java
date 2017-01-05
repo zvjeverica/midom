@@ -45,10 +45,10 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
 
 //    private DialogDownloading dialogDownloading;
 
-    public AsyncDownloadStudy(Activity activity, int ID, String downloadType) throws MalformedURLException {
+    public AsyncDownloadStudy(Activity activity, int ID) throws MalformedURLException {
         this.activity = activity;
-        //this.url = new URL(Constants.GET_UNCOMP_STUDY + ID);
-        this.url = new URL(downloadType + ID);
+        this.url = new URL(Constants.GET_COMP_STUDY + ID);
+        //this.url = new URL(downloadType + ID);
         this.ID = ID;
     }
 
@@ -87,10 +87,10 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
             // if -1 server dosen't return size of file
             int lengthOfFile = connection.getContentLength();
             Log.d(TAG, "Length of file = " + lengthOfFile);
-
+            Log.e(TAG, "Opening input for " + url);
             // input stream to read file - with 8k buffer
             input = new BufferedInputStream(url.openStream(), 8192);
-
+            Log.e(TAG, "Input open :)");
             // Output stream to write file
             output = new FileOutputStream(Constants.ZIP_DOWNLOAD_LOCATION + "/"
                     + Constants.ZIP_DOWNLOAD_NAME + ID + ".zip");
