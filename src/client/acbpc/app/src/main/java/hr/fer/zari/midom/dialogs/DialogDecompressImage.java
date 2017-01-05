@@ -129,7 +129,7 @@ public class DialogDecompressImage {
                 this.imageView.setImageDrawable(draw);
             } catch (ImageException e) {
                 e.printStackTrace();
-               Toast.makeText(context, R.string.wrong_picture_format, Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.wrong_picture_format, Toast.LENGTH_LONG).show();
             }
         }
 

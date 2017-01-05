@@ -1,8 +1,14 @@
 package hr.fer.zari.midom.task;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -15,12 +21,28 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import hr.fer.zari.midom.R;
+import hr.fer.zari.midom.activities.SetDownloadType;
 import hr.fer.zari.midom.dialogs.DialogLoading;
+import hr.fer.zari.midom.picture.ImageBitmap;
 import hr.fer.zari.midom.utils.Constants;
+import hr.fer.zari.midom.utils.ImageException;
 import hr.fer.zari.midom.utils.MidomUtils;
+import hr.fer.zari.midom.utils.decode.CBPredictor;
+import hr.fer.zari.midom.utils.decode.GRCoder;
+import hr.fer.zari.midom.utils.decode.PGMImage;
+import hr.fer.zari.midom.utils.decode.Predictor;
+
+import static com.google.android.gms.internal.a.F;
+import static com.google.android.gms.internal.a.T;
+import static hr.fer.zari.midom.utils.Constants.FOLDER;
+import static hr.fer.zari.midom.utils.Constants.TEST_FOLDER;
+import static hr.fer.zari.midom.utils.Constants.ZIP_EXTRACT;
 
 /**
  * AsyncTask for downloading study.
@@ -42,13 +64,22 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
     //private AsyncLoadImage.OnTaskCompleted listener;
     private DialogLoading dialogLoading;
     private unzipCompleted listener;
+    private String downloadType;
 
 //    private DialogDownloading dialogDownloading;
 
     public AsyncDownloadStudy(Activity activity, int ID) throws MalformedURLException {
+
+
         this.activity = activity;
-        this.url = new URL(Constants.GET_COMP_STUDY + ID);
-        //this.url = new URL(downloadType + ID);
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
+        this.downloadType = sharedPref.getString(SetDownloadType.DOWNLOAD_TYPE_PREFERENCE, "");
+        Log.e ("DownloadType", "Download Type: " + downloadType);
+        if (downloadType.equals("Uncompressed") )
+            this.url = new URL(Constants.GET_UNCOMP_STUDY + ID);
+        else
+            this.url = new URL(Constants.GET_COMP_STUDY + ID);
+        Log.e ("DownloadType", "URL: " + this.url);
         this.ID = ID;
     }
 
@@ -111,6 +142,20 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
             }
             unzipFunction(Constants.ZIP_DOWNLOAD_LOCATION + "/" + Constants.ZIP_DOWNLOAD_NAME + ID + ".zip",
                     Constants.ZIP_EXTRACT);
+
+
+            if (downloadType.equals("Compressed")){
+                List<File> files = getFiles();
+                for (File file:  files){
+                    if (file.getName().toLowerCase().endsWith(".cbp")){
+                        Log.e(TAG, "Decompressing " + file.getName());
+                        decompressFile(file);
+                        Log.e(TAG, "Decompressed " + file.getName());
+
+                    }
+                }
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "Error with downloading file");
         } finally {
@@ -215,6 +260,10 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
 
             zipInput.close();
             fInput.close();
+
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -227,5 +276,65 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
     public void setListener(unzipCompleted listener) {
         this.listener = listener;
     }
+
+    public void decompressFile (File file){
+        //File needs to be .cbp
+        GRCoder dekoder = new GRCoder();
+        String folderName = "decoded";
+
+        int[] buffer = dekoder.decode(file.getAbsolutePath());
+
+        PGMImage decodedImage = new PGMImage();
+        decodedImage.setDimension(buffer[0], buffer[1]);
+        decodedImage.setMaxGray(buffer[2]);
+
+        Predictor predictor = new CBPredictor(CBPredictor.VectorDistMeasure.L2, CBPredictor.BlendPenaltyType.SSQR, 5, 6, 6, 0, false);
+
+        int renewedPixel;
+        for (int k = 0; k < buffer[1]; k++) {
+            for (int j = 0; j < buffer[0]; j++) {
+                int prediction = predictor.predict(k, j, decodedImage);
+                renewedPixel = buffer[k * buffer[0] + j + 3] + prediction;
+                decodedImage.setPixel(k, j, renewedPixel);
+            }
+            if (k % 25 == 0) Log.e("dekodiranje", String.valueOf(k));
+        }
+
+//        File f = new File(ZIP_EXTRACT);
+//        try {
+//            if (f.mkdirs()) {
+//                Log.e("dec", "Directory Created");
+//            } else {
+//                Log.e("dec", "Directory is not created");
+//            }
+//        } catch (Exception e) {
+//            Log.e("dec", "error");
+//        }
+
+        String filepath = ZIP_EXTRACT +"/images/" + file.getName().substring(0, file.getName().indexOf(".")) + ".pgm";
+        Log.e("decoder", "Saving file to " + filepath);
+        decodedImage.setFilePath(filepath);
+        decodedImage.writeImage();
+    }
+
+    private List<File> getFiles(){
+        List<File> result = new ArrayList<>();
+
+        String path = ZIP_EXTRACT + "/" + ID + ".cbp";
+        Log.e("Files", "Geting files from Path: " + path);
+        File directory = new File(path);
+        if (! directory.exists()){
+            directory.mkdir();
+        }
+        File[] files = directory.listFiles();
+        //Log.d("Files", "Size: "+ files.length);
+        for (int i = 0; i < files.length; i++)
+        {
+            result.add(files[i]);
+            Log.e("Files", "FileName:" + files[i].getName());
+        }
+        return result;
+    }
+
 
 }
