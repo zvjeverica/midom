@@ -1,9 +1,12 @@
 package hr.fer.zari.midom.task;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -39,6 +42,7 @@ import hr.fer.zari.midom.utils.decode.PGMImage;
 import hr.fer.zari.midom.utils.decode.Predictor;
 
 import static com.google.android.gms.internal.a.F;
+import static com.google.android.gms.internal.a.I;
 import static com.google.android.gms.internal.a.T;
 import static hr.fer.zari.midom.utils.Constants.FOLDER;
 import static hr.fer.zari.midom.utils.Constants.TEST_FOLDER;
@@ -65,17 +69,26 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
     private DialogLoading dialogLoading;
     private unzipCompleted listener;
     private String downloadType;
+    boolean isWiFi;
+    boolean isMobile;
 
 //    private DialogDownloading dialogDownloading;
 
     public AsyncDownloadStudy(Activity activity, int ID) throws MalformedURLException {
 
-
         this.activity = activity;
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
         this.downloadType = sharedPref.getString(SetDownloadType.DOWNLOAD_TYPE_PREFERENCE, "");
+
+        ConnectivityManager cm = (ConnectivityManager) activity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        this.isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+        this.isMobile = activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE;
+
+
         Log.e ("DownloadType", "Download Type: " + downloadType);
-        if (downloadType.equals("Uncompressed") )
+        if (downloadType.equals("Uncompressed") || (downloadType.equals("Automatic") && isWiFi))
             this.url = new URL(Constants.GET_UNCOMP_STUDY + ID);
         else
             this.url = new URL(Constants.GET_COMP_STUDY + ID);
@@ -114,7 +127,6 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
             URLConnection connection = url.openConnection();
             connection.connect();
 
-
             // if -1 server dosen't return size of file
             int lengthOfFile = connection.getContentLength();
             Log.d(TAG, "Length of file = " + lengthOfFile);
@@ -144,7 +156,7 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
                     Constants.ZIP_EXTRACT);
 
 
-            if (downloadType.equals("Compressed")){
+            if (downloadType.equals("Compressed") || (downloadType.equals("Automatic") && isMobile)){
                 List<File> files = getFiles();
                 for (File file:  files){
                     if (file.getName().toLowerCase().endsWith(".cbp")){
@@ -280,7 +292,6 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
     public void decompressFile (File file){
         //File needs to be .cbp
         GRCoder dekoder = new GRCoder();
-        String folderName = "decoded";
 
         int[] buffer = dekoder.decode(file.getAbsolutePath());
 
@@ -300,17 +311,6 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
             if (k % 25 == 0) Log.e("dekodiranje", String.valueOf(k));
         }
 
-//        File f = new File(ZIP_EXTRACT);
-//        try {
-//            if (f.mkdirs()) {
-//                Log.e("dec", "Directory Created");
-//            } else {
-//                Log.e("dec", "Directory is not created");
-//            }
-//        } catch (Exception e) {
-//            Log.e("dec", "error");
-//        }
-
         String filepath = ZIP_EXTRACT +"/images/" + file.getName().substring(0, file.getName().indexOf(".")) + ".pgm";
         Log.e("decoder", "Saving file to " + filepath);
         decodedImage.setFilePath(filepath);
@@ -327,7 +327,6 @@ public class AsyncDownloadStudy extends AsyncTask<Void, Void, Void> {
             directory.mkdir();
         }
         File[] files = directory.listFiles();
-        //Log.d("Files", "Size: "+ files.length);
         for (int i = 0; i < files.length; i++)
         {
             result.add(files[i]);

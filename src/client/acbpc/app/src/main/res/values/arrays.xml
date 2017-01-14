@@ -3,5 +3,6 @@
     <array name="downloadTypes_values">
         <item>Compressed</item>
         <item>Uncompressed</item>
+        <item>Automatic</item>
     </array>
 </resources>

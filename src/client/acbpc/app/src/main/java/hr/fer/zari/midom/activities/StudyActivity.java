@@ -40,7 +40,7 @@ public class StudyActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         consultationRequestID = getIntent().getExtras().getInt(MainActivity.EXTRA_CR_ID);
         setContentView(R.layout.activity_study);
-        deleteFiles();
+        //deleteFiles();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class StudyActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        deleteFiles();
+        //deleteFiles();
     }
 
     private void deleteFiles() {

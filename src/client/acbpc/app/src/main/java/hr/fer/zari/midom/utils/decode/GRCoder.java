@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////
 package hr.fer.zari.midom.utils.decode;
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -112,7 +113,6 @@ public class GRCoder {
 			FileInputStream fin = new FileInputStream(file);
 			//fileBytes = IOUtils.toByteArray(fin);
 
-
 			fileBytes = new byte[(int) file.length()];
 			fin.read(fileBytes);
 
@@ -139,25 +139,41 @@ public class GRCoder {
 		output[2] = fileMaxPixel;
 		fileBytes = Arrays.copyOfRange (fileBytes,12, fileBytes.length);
 
-		for(int i=0; i < fileBytes.length; i++){
-			if (((fileBytes[i] >> 7) & 1) == 1) {sedmi = true;}else {sedmi = false;}
-			if (((fileBytes[i] >> 6) & 1) == 1){ sesti = true;}else {sesti = false;}
-			if (((fileBytes[i] >> 5) & 1) == 1) {peti = true; }else{ peti = false;}
-			if (((fileBytes[i] >> 4) & 1) == 1) {cetvrti = true;}else {cetvrti = false;}
-			if (((fileBytes[i] >> 3) & 1) == 1) {treci = true; }else {treci = false;}
-			if (((fileBytes[i] >> 2) & 1) == 1) {drugi = true;}else {drugi = false;}
-			if (((fileBytes[i] >> 1) & 1) == 1) {prvi = true;}else {prvi = false;}
-			if (((fileBytes[i] >> 0) & 1) == 1) {nulti = true; }else {nulti = false;}
-
-			if (sedmi) {fileBytes[i] |= 1;}else{fileBytes[i] &= ~(1 << 0);}
-			if (sesti) {fileBytes[i] |= 1 << 1;}else{fileBytes[i] &= ~(1 << 1);}
-			if (peti) {fileBytes[i] |= 1 << 2;}else{fileBytes[i] &= ~(1 << 2);}
-			if (cetvrti){ fileBytes[i] |= 1 << 3;}else{fileBytes[i] &= ~(1 << 3);}
-			if (treci) {fileBytes[i] |= 1 << 4;}else{fileBytes[i] &= ~(1 << 4);}
-			if (drugi){ fileBytes[i] |= 1 << 5;}else{fileBytes[i] &= ~(1 << 5);}
-			if (prvi) {fileBytes[i] |= 1 << 6;}else{fileBytes[i] &= ~(1 << 6);}
-			if (nulti) {fileBytes[i] |= 1 << 7;}else{fileBytes[i] &= ~(1 << 7);}
+		byte [] lookup = new byte[256];
+		for (int i=0; i< lookup.length; i++){
+			lookup[i] = calculateReverse((byte)(i-128));
 		}
+
+		Log.e("TEST", "Krecemo");
+
+		for(int i=0; i < fileBytes.length; i++){
+//			if (((fileBytes[i] >> 7) & 1) == 1) {sedmi = true;}else {sedmi = false;}
+//			if (((fileBytes[i] >> 6) & 1) == 1){ sesti = true;}else {sesti = false;}
+//			if (((fileBytes[i] >> 5) & 1) == 1) {peti = true; }else{ peti = false;}
+//			if (((fileBytes[i] >> 4) & 1) == 1) {cetvrti = true;}else {cetvrti = false;}
+//			if (((fileBytes[i] >> 3) & 1) == 1) {treci = true; }else {treci = false;}
+//			if (((fileBytes[i] >> 2) & 1) == 1) {drugi = true;}else {drugi = false;}
+//			if (((fileBytes[i] >> 1) & 1) == 1) {prvi = true;}else {prvi = false;}
+//			if (((fileBytes[i] >> 0) & 1) == 1) {nulti = true; }else {nulti = false;}
+//
+//			if (sedmi) {fileBytes[i] |= 1;}else{fileBytes[i] &= ~(1 << 0);}
+//			if (sesti) {fileBytes[i] |= 1 << 1;}else{fileBytes[i] &= ~(1 << 1);}
+//			if (peti) {fileBytes[i] |= 1 << 2;}else{fileBytes[i] &= ~(1 << 2);}
+//			if (cetvrti){ fileBytes[i] |= 1 << 3;}else{fileBytes[i] &= ~(1 << 3);}
+//			if (treci) {fileBytes[i] |= 1 << 4;}else{fileBytes[i] &= ~(1 << 4);}
+//			if (drugi){ fileBytes[i] |= 1 << 5;}else{fileBytes[i] &= ~(1 << 5);}
+//			if (prvi) {fileBytes[i] |= 1 << 6;}else{fileBytes[i] &= ~(1 << 6);}
+//			if (nulti) {fileBytes[i] |= 1 << 7;}else{fileBytes[i] &= ~(1 << 7);}
+
+			try {
+				fileBytes[i] = lookup[fileBytes[i]+128];
+			}catch (Exception e){
+				Log.e ("REVERSE", e.getMessage());
+			}
+		}
+
+		Log.e("TEST", "GOTOVI");
+
 		BitSet inSet = BitSet.valueOf (fileBytes);
 		int unary =0;
 		int binary = 0;
@@ -192,6 +208,14 @@ public class GRCoder {
 			binaryPart = false;
 		}
 		return output;
+	}
+
+	private byte calculateReverse(byte bits) {
+		byte ret = bits;
+		ret = (byte)((ret & 0b11110000) >> 4 | (ret & 0b00001111) << 4);
+		ret = (byte)((ret & 0b11001100) >> 2 | (ret & 0b00110011) << 2);
+		ret = (byte)((ret & 0b10101010) >> 1 | (ret & 0b01010101) << 1);
+		return ret;
 	}
 
 	static int map (int value) {
@@ -260,4 +284,6 @@ public class GRCoder {
 			symbolCnt = 1;
 		}
 	}
+
+
 }
